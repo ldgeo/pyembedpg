@@ -43,16 +43,17 @@ class PyEmbedPg(object):
 
     CACHE_DIRECTORY = '.pyembedpg'
 
-    def __init__(self, version=None):
+    def __init__(self, version=None, config_options=None):
         """
         Initialize a new Postgres object
         :param version: version to use. If it is not set, use the latest version in .pyembedpg directory. If not present
                         use the latest version remotely. Use 'local' to use the local postgres version installed on the machine
+        :param config_options: config options to add to the ./configure command as string. Ex: '--with-python'
         :return:
         """
         home_dir = expanduser("~")
         self._cache_dir = os.path.join(home_dir, PyEmbedPg.CACHE_DIRECTORY)
-
+        self._config_options = config_options
         # if version is not specified, check local last version otherwise get last remote version
         self.version = version
         if not self.version:
@@ -126,7 +127,13 @@ class PyEmbedPg(object):
                 # Can't use with context directly because of python 2.6
                 with closing(tarfile.open(fd.name)) as tar:
                     tar.extractall(temp_dir)
-                os.system('sh -c "cd {path} && ./configure --prefix={target_dir} && make install"'.format(path=source_dir, target_dir=self._version_path))
+                os.system(
+                    'sh -c "cd {path} && '
+                    './configure --prefix={target_dir} {config_options} && '
+                    'make install"'.format(
+                        path=source_dir,
+                        target_dir=self._version_path,
+                        config_options=self._config_options or ''))
             finally:
                 shutil.rmtree(temp_dir, ignore_errors=True)
 
