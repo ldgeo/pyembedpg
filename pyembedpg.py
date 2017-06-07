@@ -30,6 +30,7 @@ import shutil
 import psycopg2
 import time
 from subprocess import Popen
+from multiprocessing import cpu_count
 
 
 logger = logging.getLogger('pyembedpg')
@@ -130,10 +131,11 @@ class PyEmbedPg(object):
                 os.system(
                     'sh -c "cd {path} && '
                     './configure --prefix={target_dir} {config_options} && '
-                    'make install"'.format(
+                    'make install -j {cpu_count}"'.format(
                         path=source_dir,
                         target_dir=self._version_path,
-                        config_options=self._config_options or ''))
+                        config_options=self._config_options or '',
+                        cpu_count=cpu_count()))
             finally:
                 shutil.rmtree(temp_dir, ignore_errors=True)
 
