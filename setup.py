@@ -61,8 +61,8 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     install_requires=[
-        'requests==2.7.0',
-        'psycopg2==2.6'
+        'requests',
+        'psycopg2>=2.6'
     ],
     tests_require=[
         'pytest'
